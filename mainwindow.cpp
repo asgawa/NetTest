@@ -53,8 +53,8 @@ bool MainWindow::createTestPacket(TEST_PACKET *packet)
 
 void MainWindow::slotCboxClickedTcpConnection(bool clicked)
 {
-    if (NULL == ui || NULL == ui->lblTcpIp || NULL == ui->lblTcpPort || NULL == ui->cboxTcpConnection) {
-        debugOut("ui | lblTcpIp | lblTcpPort | cboxTcpConnection is NULL");
+    if (NULL == ui || NULL == ui->lblTcpIp || NULL == ui->lblTcpPort) {
+        debugOut("ui | lblTcpIp | lblTcpPort is NULL");
         return;
     }
 
@@ -221,10 +221,11 @@ void MainWindow::slotMulticastReadyRead()
 void MainWindow::debugOut(QString msg)
 {
     if (NULL == ui || NULL == ui->tboxOutput) {
-        qDebug("ui | lblMulticastIp | lblMulticastPort is NULL");
+        qDebug("ui | tboxOutput is NULL");
         return;
     }
 
+    //append let scrollbar be to the last line
     ui->tboxOutput->append(msg);
 }
 
