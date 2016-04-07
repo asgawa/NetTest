@@ -3,13 +3,9 @@ NetTest provides network send/recv for test
 
 While developing, I used to need temporary simple network sender or receiver. That was annoying.
 
-<UDP>
-1. Unicast
-2. Multicast
-//3. Broadcast
+Currently,
+TCP client send/recv
+UDP send/recv
+Multicast send/recv
 
-<TCP>
-1. Client
-//2. Server
-
-Commented item will be added.
+with custom packet. This packet pattern is my usual work.
