@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "customprotocol.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -18,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->btnClear, SIGNAL(clicked()), this, SLOT(slotBtnClickedClear()));
     connect(ui->btnScrolltoBottom, SIGNAL(clicked()), this, SLOT(slotBtnClickedScrollToBottom()));
     ui->btnScrolltoBottom->hide();  // btnScrolltoBottom not used
+    connect(ui->btnSelectProtocol, SIGNAL(clicked()), this, SLOT(slotBtnClickedEditProtocol()));
 }
 
 MainWindow::~MainWindow()
@@ -156,7 +158,7 @@ void MainWindow::slotBtnClickedMulticastSend()
 
     if (NULL == multicastSocket) {
         multicastSocket = new QUdpSocket;
-        connect(multicastSocket, SIGNAL(readyRead()), this, SLOT(slotUdpReadyRead()));
+        connect(multicastSocket, SIGNAL(readyRead()), this, SLOT(slotMulticastReadyRead()));
         multicastSocket->setSocketOption(QUdpSocket::MulticastLoopbackOption, QVariant(0));
         multicastSocket->bind(QHostAddress::Any, port);
     }
@@ -198,9 +200,22 @@ void MainWindow::slotBtnClickedScrollToBottom()
     ui->tboxOutput->setTextCursor(cursor);
 }
 
+void MainWindow::slotBtnClickedEditProtocol()
+{
+    CustomProtocol *customProtocol = new CustomProtocol(this);
+    connect(customProtocol, SIGNAL(finished(int)), customProtocol, SLOT(deleteLater()));
+    connect(customProtocol, SIGNAL(finished(int)), this, SLOT(slotSetEnabled()));
+    setEnabled(false);
+    customProtocol->show();
+}
+
 void MainWindow::slotTcpReadyRead()
 {
     debugOut(QString("[%1:%2]").arg(__func__).arg(__LINE__));
+    if (tcpSocket) {
+        QByteArray data = tcpSocket->readAll();
+        qDebug() << "result =" << data.size();
+    }
 }
 
 void MainWindow::slotUdpReadyRead()
@@ -216,6 +231,16 @@ void MainWindow::slotUdpReadyRead()
 void MainWindow::slotMulticastReadyRead()
 {
     debugOut(QString("[%1:%2]").arg(__func__).arg(__LINE__));
+    if (multicastSocket) {
+        QByteArray data(multicastSocket->pendingDatagramSize(), 0);
+        const qint64 result = multicastSocket->readDatagram(data.data(), data.size());
+        qDebug() << "result =" << result;
+    }
+}
+
+void MainWindow::slotSetEnabled(bool enabled)
+{
+    QMainWindow::setEnabled(enabled);
 }
 
 void MainWindow::debugOut(QString msg)

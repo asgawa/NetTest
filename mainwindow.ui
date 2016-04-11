@@ -256,6 +256,19 @@
      <string>Scroll to Bottom</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btnSelectProtocol">
+    <property name="geometry">
+     <rect>
+      <x>244</x>
+      <y>300</y>
+      <width>101</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Select Protocol</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

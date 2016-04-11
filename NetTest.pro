@@ -7,12 +7,15 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    customprotocol.cpp
 
 HEADERS  += mainwindow.h \
-    define_packet.h
+    define_packet.h \
+    customprotocol.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    customprotocol.ui
 
 release:TARGET_DIR = $$PWD/release
 debug:TARGET_DIR = $$PWD/debug

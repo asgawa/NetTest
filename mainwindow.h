@@ -42,10 +42,13 @@ private slots:
     void slotBtnClickedMulticastSend();
     void slotBtnClickedClear();
     void slotBtnClickedScrollToBottom();
+    void slotBtnClickedEditProtocol();
 
     void slotTcpReadyRead();
     void slotUdpReadyRead();
     void slotMulticastReadyRead();
+
+    void slotSetEnabled(bool enable = true);
 };
 
 #endif // MAINWINDOW_H
