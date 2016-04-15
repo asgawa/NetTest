@@ -37,15 +37,13 @@ bool MainWindow::createTestPacket(TEST_PACKET *packet)
         return false;
     }
 
-    const char *testData = "NetTest!";
     const size_t PACKET_LEN = sizeof(TEST_PACKET);
 
     memset(packet, 0, PACKET_LEN);
-    packet->length = PACKET_LEN;
-    packet->packetId = 0x1;
-//    packet->targetId = 0x0;
-    strncpy_s(packet->data, 32, testData, strlen(testData));
-    packet->heartbeat = this->heartbeat;
+    packet->PacketLength = PACKET_LEN;
+    packet->Command = 0x1;
+    packet->DataValid = 0x1;
+    packet->Watchdog = this->heartbeat;
     ++heartbeat;
 
     if (0xFF == heartbeat) heartbeat = 0;
@@ -98,7 +96,6 @@ void MainWindow::slotBtnClickedTcpSend()
         }
     }
 
-//    if (QTcpSocket::ConnectedState == tcpSocket->state()) {
     if (tcpSocket->waitForConnected(TCP_CONNECTION_TIMEOUT)) {
         TEST_PACKET *packet = new TEST_PACKET;
         if (createTestPacket(packet)) {
@@ -130,7 +127,7 @@ void MainWindow::slotBtnClickedUdpSend()
     if (NULL == udpSocket) {
         udpSocket = new QUdpSocket;
         connect(udpSocket, SIGNAL(readyRead()), this, SLOT(slotUdpReadyRead()));
-        udpSocket->bind(QHostAddress::Any, port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint);
+        udpSocket->bind(QHostAddress::Any, port, QUdpSocket::ReuseAddressHint | QUdpSocket::ShareAddress);
     }
 
     if (QUdpSocket::BoundState == udpSocket->state()) {
@@ -158,23 +155,23 @@ void MainWindow::slotBtnClickedMulticastSend()
 
     if (NULL == multicastSocket) {
         multicastSocket = new QUdpSocket;
-        connect(multicastSocket, SIGNAL(readyRead()), this, SLOT(slotMulticastReadyRead()));
         multicastSocket->setSocketOption(QUdpSocket::MulticastLoopbackOption, QVariant(0));
-        multicastSocket->bind(QHostAddress::Any, port);
+        multicastSocket->bind(port, QUdpSocket::ReuseAddressHint | QUdpSocket::ShareAddress);
+        connect(multicastSocket, SIGNAL(readyRead()), this, SLOT(slotMulticastReadyRead()));
+        if (QUdpSocket::BoundState != multicastSocket->state()) {
+            debugOut(QString("Multicast: cannot bind to [%1]").arg(ip));
+            deallocMulticast();
+            return;
+        }
+
+        multicastSocket->joinMulticastGroup(QHostAddress(ip));
     }
 
-    if (QUdpSocket::BoundState == multicastSocket->state()) {
-        multicastSocket->joinMulticastGroup(QHostAddress(ip));
-
-        TEST_PACKET *packet = new TEST_PACKET;
-        if (createTestPacket(packet)) {
-            int result = multicastSocket->writeDatagram((const char *)packet, sizeof(TEST_PACKET), QHostAddress(ip), port);
-            debugOut(QString("[%1:%2] result = %3").arg(__func__).arg(__LINE__).arg(result));
-            delete packet;
-        }
-    } else {
-        debugOut(QString("Multicast: cannot bind to [%1]").arg(ip));
-        deallocMulticast();
+    TEST_PACKET *packet = new TEST_PACKET;
+    if (createTestPacket(packet)) {
+        int result = multicastSocket->writeDatagram((const char *)packet, sizeof(TEST_PACKET), QHostAddress(ip), port);
+        debugOut(QString("[%1:%2] result = %3").arg(__func__).arg(__LINE__).arg(result));
+        delete packet;
     }
 }
 
@@ -202,7 +199,7 @@ void MainWindow::slotBtnClickedScrollToBottom()
 
 void MainWindow::slotBtnClickedEditProtocol()
 {
-    CustomProtocol *customProtocol = new CustomProtocol(this);
+    CustomProtocol *customProtocol = new CustomProtocol;
     connect(customProtocol, SIGNAL(finished(int)), customProtocol, SLOT(deleteLater()));
     connect(customProtocol, SIGNAL(finished(int)), this, SLOT(slotSetEnabled()));
     setEnabled(false);
@@ -250,7 +247,7 @@ void MainWindow::debugOut(QString msg)
         return;
     }
 
-    //append let scrollbar be to the last line
+    //append() let scrollbar move to the last line
     ui->tboxOutput->append(msg);
 }
 

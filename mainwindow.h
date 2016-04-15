@@ -21,6 +21,8 @@ public:
 
 private:
     static const int TCP_CONNECTION_TIMEOUT = 1000;
+    static const int PACKET_EDITOR_WIDTH = 400;
+    static const int PACKET_EDITOR_HEIGHT = 300;
 
     Ui::MainWindow *ui;
     QTcpSocket *tcpSocket;

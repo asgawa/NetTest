@@ -172,7 +172,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>239.9.9.9</string>
+     <string>239.0.9.0</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lblMulticastPort">
@@ -185,7 +185,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>39999</string>
+     <string>39090</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="tboxOutput">
